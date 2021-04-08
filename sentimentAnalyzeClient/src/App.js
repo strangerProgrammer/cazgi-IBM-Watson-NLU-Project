@@ -37,7 +37,7 @@ class App extends React.Component {
     this.setState({sentiment:true});
     let ret = "";
     let url = ".";
-
+    console.log ("sendForSentimentAnalysis");
     if(this.state.mode === "url") {
       url = url+"/url/sentiment?url="+document.getElementById("textinput").value;
     } else {
@@ -47,7 +47,7 @@ class App extends React.Component {
     ret.then((response)=>{
 
       //Include code here to check the sentiment and fomrat the data accordingly
-
+ console.log ("sendForSentimentAnalysis");
       this.setState({sentimentOutput:response.data});
       let output = response.data;
       if(response.data === "positive") {
@@ -55,13 +55,14 @@ class App extends React.Component {
       } else if (response.data === "negative"){
         output = <div style={{color:"red",fontSize:20}}>{response.data}</div>
       } else {
-        output = <div style={{color:"orange",fontSize:20}}>{response.data}</div>
+        output = <div style={{color:"yellow",fontSize:20}}>{response.data}</div>
       }
       this.setState({sentimentOutput:output});
     });
   }
 
   sendForEmotionAnalysis = () => {
+      console.log("sendForEmotionAnalysis");
     this.setState({sentiment:false});
     let ret = "";
     let url = ".";
@@ -79,6 +80,7 @@ class App extends React.Component {
   
 
   render() {
+      console.log("render");
     return (  
       <div className="App">
       <button className="btn btn-info" onClick={this.renderTextArea}>Text</button>
