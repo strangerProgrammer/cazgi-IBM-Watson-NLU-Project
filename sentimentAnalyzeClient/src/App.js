@@ -1,8 +1,10 @@
 import './bootstrap.min.css';
 import './App.css';
+import SentimentInfo from './SentimentInfo.js';
 import EmotionTable from './EmotionTable.js';
 import React from 'react';
 import axios from 'axios';
+import { Helmet } from 'react-helmet';
 
 class App extends React.Component {
   state = {innercomp:<textarea rows="4" cols="50" id="textinput"/>,
@@ -37,7 +39,7 @@ class App extends React.Component {
     this.setState({sentiment:true});
     let ret = "";
     let url = ".";
-    console.log ("sendForSentimentAnalysis");
+
     if(this.state.mode === "url") {
       url = url+"/url/sentiment?url="+document.getElementById("textinput").value;
     } else {
@@ -45,24 +47,26 @@ class App extends React.Component {
     }
     ret = axios.get(url);
     ret.then((response)=>{
-
       //Include code here to check the sentiment and fomrat the data accordingly
- console.log ("sendForSentimentAnalysis");
-      this.setState({sentimentOutput:response.data});
-      let output = response.data;
-      if(response.data === "positive") {
-        output = <div style={{color:"green",fontSize:20}}>{response.data}</div>
-      } else if (response.data === "negative"){
-        output = <div style={{color:"red",fontSize:20}}>{response.data}</div>
-      } else {
-        output = <div style={{color:"yellow",fontSize:20}}>{response.data}</div>
+       
+        if(response.data.result && response.data.result.keywords){
+            
+               
+          this.setState({sentimentOutput:<SentimentInfo keywords={response.data.result.keywords}/>}); 
+        }       
+       
+           
+    }).catch(err => {      
+      if(err.response){
+        this.setState({sentimentOutput:<SentimentInfo keywords={err.response}/>});
+        console.log(err.response);
+      }else{
+        console.log(err);       
       }
-      this.setState({sentimentOutput:output});
-    });
+  });
   }
 
   sendForEmotionAnalysis = () => {
-      console.log("sendForEmotionAnalysis");
     this.setState({sentiment:false});
     let ret = "";
     let url = ".";
@@ -74,15 +78,29 @@ class App extends React.Component {
     ret = axios.get(url);
 
     ret.then((response)=>{
-      this.setState({sentimentOutput:<EmotionTable emotions={response.data}/>});
-  });
+        this.setState({sentimentOutput:<EmotionTable emotions={response.data}/>});   
+        console.log(response);   
+     
+    }).catch(err => {
+      if(err.response){
+        this.setState({sentimentOutput:<EmotionTable emotions={err.response}/>});
+        console.log(err);
+      }else{
+        console.log(err);        
+      }
+    
+    });
+
+ 
   }
   
-
   render() {
-      console.log("render");
     return (  
+      
       <div className="App">
+        <Helmet>
+          <title>Sentiment Analyzer</title>
+        </Helmet>
       <button className="btn btn-info" onClick={this.renderTextArea}>Text</button>
         <button className="btn btn-dark"  onClick={this.renderTextBox}>URL</button>
         <br/><br/>
